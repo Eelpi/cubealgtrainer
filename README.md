@@ -6,11 +6,11 @@ An algorithm trainer for cube puzzles. Currently it supports 3x3x3 and 2x2x2.
 
 First, select an algorithm set from the navigation menu on the top of the page. It will generate a timer with scrambles that you can use on your puzzle. You can disable subsets by unchecking the checkboxes below the timer display. That way you won't get scrambles from those subsets. You can also disable specific cases by unchecking the checkboxes in the algset manager window.
 
-## Smart Training
+## Smart training
 
 There's an option in the settings window which is enabled by default, called smart training. What it does is, when you reach at least 5 times with each enabled case, the scrambles will be based on the times you take to solve each case: the slower you solve a case, the more likely you'll get that case again.
 
-## Algset Input
+## Algset input
 
 1. Start with `///` followed by the event name. For example: `///3x3`, `///2x2`.
 2. Then start a new line with `//` followed by the algset name. For example: `//OLL`, `//EG1`<br>
