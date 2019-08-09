@@ -518,7 +518,6 @@ function popupVisible() {
 }
 
 function timerPressed(e) {
-    console.log(e.type);
     if (e.type === "touchstart" || e.keyCode == 32) {
         if (currentAlgSetIndex !== -1 && !popupVisible()) {
             $(".timerdisplay").css('color', '#009dff');
