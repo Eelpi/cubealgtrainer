@@ -333,8 +333,7 @@ function parseAlgSets(text) {
                 caSe = new Case(subset.cases.length);
                 subset.addCase(caSe);
                 caseCounter++;
-            }
-            if (line.trim() != '') {
+            } else if (line.trim() != '') {
                 var alg = cleanAlg(line);
                 if (!evalAlg(alg, event)) {
                     success = false;
@@ -365,6 +364,7 @@ function parseAlgSets(text) {
             hidePopup($('#algsets'));
         }
     } else {
+        console.log(lineIterate[invalidLine]);
         var msg = replaceTxtData(langText[txtErrorMsg], invalidLine, lineIterate[invalidLine]);
         alertPopup(langText[txtErrorTitle], msg);
     }
