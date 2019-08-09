@@ -88,7 +88,6 @@ function closeAlert(alert) {
 }
 
 var language = "en";
-var langText = [];
 var textEn = [
     "Cancel",
     "Success!",
@@ -111,6 +110,7 @@ var textJp = [
     "キューブ手順トレーナー",
     "この手順セットを削除しますか？"
 ];
+var langText = textEn;
 var txtCancel = 0;
 var txtParseSuccessTitle = 1;
 var txtParseSuccessMsg = 2;
@@ -333,18 +333,18 @@ function parseAlgSets(text) {
                 caSe = new Case(subset.cases.length);
                 subset.addCase(caSe);
                 caseCounter++;
-            } else if (line.trim() != '') {
+            }
+            if (line.trim() != '') {
                 var alg = cleanAlg(line);
                 if (!evalAlg(alg, event)) {
                     success = false;
                     invalidLine = i;
+                    console.log(alg);
                 } else {
+                    console.log(algset.name + "-" + subset.name + caSe.n + ":" + alg);
                     caSe.addAlg(alg);
                     algCounter++;
                 }
-            } else {
-                success = false;
-                invalidLine = i;
             }
         } else {
             success = false;
