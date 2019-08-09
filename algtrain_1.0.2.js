@@ -542,14 +542,11 @@ function timerPressed(e) {
                 nextScramble();
             }
         }
-        console.log(touching);
         return false;
     }
-    console.log(touching);
 }
 
 function timerUnpressed(e) {
-    console.log(e);
     if (((e.type === "touchend" && touching) || e.keyCode == 32) && currentAlgSetIndex !== -1 && !popupVisible()) {
         if (e.type === "touchend") {
             touching = false;
@@ -569,8 +566,6 @@ function timerUnpressed(e) {
             running = false;
         }
     }
-
-    console.log(touching);
 }
 
 $(document).keydown(function(e) { timerPressed(e) });
