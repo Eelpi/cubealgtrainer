@@ -1,0 +1,29 @@
+* {
+    background-color: black;
+    color: white;
+}
+
+a {
+    color: white;
+}
+
+ul#menu li a,
+button {
+    color: white;
+}
+
+button,
+.popup,
+div.timelist,
+div.langContainer {
+    border: 2px solid #333;
+}
+
+nav,
+li a.algset {
+    border-bottom: 2px solid #333;
+}
+
+.popup h1 span {
+    color: black;
+}

@@ -1,0 +1,1495 @@
+<html>
+
+<head>
+    <title>Cube Algorithm Trainer</title>
+    <link rel="icon" href="icon.png">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <link rel="stylesheet" type="text/css" href="theme-light.css" class="themelink">
+    <script src="jquery-3.4.1.min.js"></script>
+    <script src="main.js"></script>
+    <script src="svg.min.js"></script>
+    <script>
+        function adjustContent() {
+            $(".content").css({
+                'display': 'flex',
+                'width': '100%',
+                'height': '100%',
+                'padding-top': $("nav").height() + 10 + "px"
+            });
+            if ($(document).width() <= 500) {
+                $(".content").css("flex-direction", "column");
+                $(".timelist").css({
+                    "width": "100%",
+                    "height": "100%"
+                })
+            } else {
+                $(".content").css("flex-direction", "row");
+                $(".timelist").css({
+                    "width": "250px",
+                    "height": "100%"
+                })
+            }
+        }
+
+        $(document).ready(function() {
+            $('.popup').hide();
+            $('.popupback').hide();
+            $('.subbuttoncontainer').hide();
+            $('.timerdisplay').hide();
+            $('.timelist').hide();
+            $('.setinfo').show();
+        });
+        $(document).ready(adjustContent);
+        $(window).resize(adjustContent);
+    </script>
+    <script src="algtrain.js"></script>
+</head>
+
+<body>
+    <!-- Popup backgrounds -->
+    <div class="popupback" style="display: none;"></div>
+    <div class="alertback" style="display: none;"></div>
+    <!-- Algset input window -->
+    <div class="popup" id="algsets" style="display: none;">
+        <h1><span lang="en">Add algsets</span><span lang="ja">手順追加</span></h1>
+        <div class="container"><textarea placeholder="Input algset(s) here..." class="inputArea"></textarea></div>
+        <div><button onclick="parseAlgSets($('.inputArea').val());">Ok</button><button onclick="hidePopup($('#algsets'));"><span lang="en">Cancel</span><span lang="ja">キャンセル</span></button></div>
+    </div>
+    <!-- Algset manager window -->
+    <div class="popup" style="display: none;" id="manager">
+        <h1><span lang="en">Algset manager</span><span lang="ja">手順管理</span></h1>
+        <div class="options"><span lang="en">Algset</span><span lang="ja">手順集</span>: <select onchange="showAlgsetManager($(this));" class="algsetSelect"></select> <span lang="en">View</span><span lang="ja">表示</span>:
+            <select class="cubeview" onchange="managerOption($(this))">
+                <option>Normal</option>
+                <option>LL</option>
+            </select> <span lang="en">Mask</span><span lang="ja">マスク</span>
+            <select class="cubemask" onchange="managerOption($(this))">
+                <option>None</option>
+                <option>FL</option>
+                <option>F2L</option>
+                <option>LL</option>
+                <option>CLL</option>
+                <option>ELL</option>
+                <option>OLL</option>
+                <option>OCLL</option>
+                <option>OELL</option>
+                <option>COLL</option>
+                <option>OCELL</option>
+                <option>WV</option>
+                <option>VH</option>
+                <option>ELS</option>
+                <option>CLS</option>
+                <option>CMLL</option>
+                <option>Cross</option>
+                <option>F2L#3</option>
+                <option>F2L#2</option>
+                <option>F2L#1</option>
+                <option>F2L SM</option>
+                <option>F2B</option>
+                <option>Line</option>
+            </select>
+            <button onclick="deleteAlgset()" class="deleteAlgset"><span lang="en">Delete</span><span lang="ja">削除</span></button>
+        </div>
+        <div class="container">
+            <table class='managertable'>
+                <thead>
+                    <tr>
+                        <th><span lang="en">Case</span><span lang="ja">ケース</span></th>
+                        <th><span lang="en">Algorithm</span><span lang="ja">手順</span></th>
+                        <th><span lang="en">Enabled</span><span lang="ja">有効・無効</span></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+        <div><button onclick="hidePopup($('#manager'));">Ok</button></div>
+    </div>
+    <!-- Settings window -->
+    <div class="popup" id="settings" style="display: none;">
+        <h1><span lang="en">Settings</span><span lang="ja">設定</span></h1>
+        <div class="container">
+            <ul>
+                <li><input onchange="settingChanged($(this))" type='checkbox' id='smartTraining'><label for="smartTraining"><span lang="en">Smart training</span><span lang="ja">スマートトレーニング</span></label></li>
+                <li><input onchange="settingChanged($(this))" type='checkbox' id='randomY'><label for="randomY"><span lang="en">Random y orientation</span><span lang="ja">Y向きがランダム</span></label></li>
+                <li><span lang="en">Theme</span><span lang="ja">テーマ</span>: <select onchange="settingChanged($(this))" id='theme'><option>Light</option><option>Dark</option></select></li>
+            </ul>
+        </div>
+        <div><button onclick="hidePopup($('#settings'));">Ok</button><button onclick="resetSettings()"><span lang="en">Reset</span><span lang="ja">リセット</span></button></div>
+    </div>
+    <!-- Navigation bar -->
+    <nav>
+        <ul id="menu">
+            <li>
+                <a href="javascript:void(0)">3x3</a>
+                <ul id="3x3">
+                </ul>
+            </li>
+            <li>
+                <a href="javascript:void(0)">2x2</a>
+                <ul id="2x2">
+                </ul>
+            </li>
+            <li><a onclick="showPopup($('#algsets'));" href="javascript:void(0)"><span lang="en">Add algsets</span><span lang="ja">手順追加</span></a></li>
+            <li><a onclick="showPopup($('#manager'));showAlgsetManager($('.algsetselect'));" href="javascript:void(0);"><span lang="en">Algset manager</span><span lang="ja">手順管理</span></a></li>
+            <li><a onclick="showPopup($('#settings'));" href="javascript:void(0);"><span lang="en">Settings</span><span lang="ja">設定</span></a></li>
+        </ul>
+    </nav>
+    <!-- Page content -->
+    <div class="content">
+        <!-- The timer -->
+        <div class="timer">
+            <h1 class="setinfo" style="display: none;"><span lang="en">Select an algset to train</span><span lang="ja">手順を選択してください。</span></h1>
+            <div class="scramble">
+            </div>
+            <div class="timerdisplay" style="display: none;">
+                0.00
+            </div>
+            <div class="subsets">
+            </div>
+            <div class="subbuttoncontainer" style="display: none;">
+                <button onclick="checkAll();$(this).blur();"><span lang="en">Check all</span><span lang="ja">全選択</span></button>
+                <button onclick="uncheckAll();$(this).blur();"><span lang="en">Uncheck all</span><span lang="ja">全選択解除</span></button>
+                <button onclick="nextScramble();$(this).blur();"><span lang="en">Next scramble</span><span lang="ja">次のスクランブル</span></button>
+            </div>
+            <br>
+        </div>
+        <div class="timelist" style="display: none;">
+            <h1><span lang="en">Times</span><span lang="ja">タイム</span></h1>
+            <div class="container"></div>
+        </div>
+    </div>
+    <div class="langContainer"><a onclick="switchLang('en')" class="lang en" href="javascript:void(0)">English</a> <a onclick="switchLang('ja')" class="lang ja" href="javascript:void(0)">日本語</a></div>
+    <!-- Default algs to load when first visiting -->
+    <textarea class="defaultalgs" style="display: none">///2x2
+//EG1@view:LL
+/AS
+y' B U' R2 F2 U' F x2
+y R' F R2 U R' F' U' R U' R'
+
+y R U' R' F' U' F2 R U' R'
+R U' F2 R U2 R U' F
+
+F' L F L' U' R U R' L' U' L
+y' R U' R' U2 R' F R2 U2 R' F
+
+R U' R' F' U' R U R' U' F
+
+y' R U R' F' U' R U R' U' R U R'
+
+y2 R U' R2 F R U' R' F R F' 
+/H
+U' R' F R2 U' R' F R U R' F' 
+U' R' F R2 U' R2 U' F U R 
+F' R2 F' R F R' U R' U 
+U' R' F R' F U F' R2 F' 
+
+U' F' U R U' R2 F2 R U' F
+F R U' R2 F U' F2 U R
+y' R2 U' R U' R' U R' U' R U' R2
+y R2 U2 R U' R2 U' R2 U R2 U' R2
+
+R' U' R' F2 U F' R F' 
+U' F U2 R U' R' F2 R' F2 R F' 
+U R' F R F' U2 F R U2 R' F 
+U R U' R' F U2 x U' R' U2 R U' 
+
+U' R U R' F' R U R' U' R U R' U' 
+F' U R' F R F' U F2 
+F' U2 F' U R' F' R F' 
+/L
+y R U' R' U R U' R2 F' R F
+y2 R U R' F' R U2 R' U2 R U R'
+
+y' R' F R F' R' F R U R U2 R'
+y2 L' U L U' L' U L2 F L' F'
+
+y R' U R2 U' R2 U' F R2 U' R'
+
+y R' F R2 U R' F' R U2 R'
+
+y2 R U R' F' R U R' U' F R' F' R
+y2 L' U L y' R U2 R U' R2
+
+y2 R' U2 F R U2 R U' R2 F
+y R U' R' y' R' U2 R' U R2
+y' R' F R F' U2 R U2 R' F R U' R'
+/Pi
+y2 R2 B2 R' U R' U' R U2 R U' R2
+y2 F2 R U R' U2 R U R' U' F
+
+y' R' F R2 U' R2 F R
+y' R U R2 F' R2 U R'
+y' R' F' R2 U R2 F' R
+y' R U' R2 F R2 U' R'
+
+y' F R' F U' F2 R U R
+
+y' R U' R' U R U' R' F R U' R'
+U' R2 F U' F2 U' F U' R' F2 R U' R'
+
+y F U' R U2 R' F' R U R' F'
+R U' R2 F R U R U' R' U' R' F R F'
+R' U' R' F2 U' R U2 F2 R
+
+F R U' R' F R U2 R' U F' 
+y2 L U L F2 U L' U2 F2 L' 
+/S
+y' F' L U2 F2 R U' x'
+z' R' U' R U2 x' U2 R U' z
+y2 R U R' U F R U' R2 F' R
+
+R U R' F2 U F R U R'
+y2 F R2 U' R2 F U' F2 U' R
+y' R' F R2 U' R2 F U' R U' R' U2 R
+
+y2 F R' F' R U R' F' R2 U R'
+y' R' F R U2 R U' R2 F2 R F'
+
+F' U R U' R' U F R U R'
+y2 F U' R U2 R' F2 R' F R
+y F' R' F R2 U R' U' F R' F' R
+
+y R U' R' U R U' R' U F R U' R'
+
+R' F R2 U' R' U L F' L' F 
+R' F R2 U' R' U R U' R' F 
+/T
+y R2 U R U' R2 F R U2 R' F
+F R U' R2 F' R U R' F' R
+y' L' U L U2 R' F2 R F' L' U L
+y2 x R' U R U' R' U' R U' R' U' R U' x'
+
+F' R' F R2 U R' U' R U R'
+y2 R U' R' F R U' R' F R U R' F'
+
+y R U' R2 F R U R U2 R'
+y' L' U L2 F' L' U' L' U2 L
+
+y' R2 B2 U' R' U' R U' R' U R'
+U' R2 B2 U' R' U' R U' R' U R'
+
+y R U R2 x U' R U R' U' R x'
+y' R' F' R2 U R' F' R U R'
+
+y2 R U' R' U2 F R U2 R' F 
+y' R U R' F R U R' F U' R U' R' 
+/U
+y' R U R' U R U R2 F R2 U' R'
+R U2 R U2 R U R2
+y' R U' R2 F R2 U R' U' R U' R'
+
+y x U' R' U R U' F R U R U' x'
+y' F R U' R' F U' F' R' F' R
+U F' R2 F' R2 F' U' F2 R2
+y x U' R2 U' R2 U' x' U' F2 R2
+
+F' U2 R U2 R' U2 F
+R U R' U F' R U R' U' R' F2 R2 U' R'
+R U R' U F' R U R' U' R U R2 F2 R
+
+y R' F R F' R' F R2 U' R'
+y' L F' L' F L F' L2 U L
+
+y R' F R F' U R U' R' F R U' R'
+y2 R U' R' U R U' R' U' F R U' R'
+F2 R U2 R' U' F2 U2 F'
+
+y2 R' F R2 U' R' U y' R U R'
+///2x2
+//CLL@view:LL
+/AS
+R' U' R U' R' U2 R
+y R U2 R' U' R U' R'
+y2 L' U' L U' L' U2 L
+
+R U2 R' F R' F' R U' R U' R'
+y' R' U' R U' R' U R' F R F' U R
+y2 R' U R U' R2 F R F' R U R' U' R
+L' U' L U' L F' L' F L' U2 L
+
+y2 F' L F L' U2 L' U2 L
+y2 F' R U R' U2 R' F2 R
+
+y2 R' F R F' R U R'
+y2 L' U L F' R U R'
+R' U L U' R U L'
+y2 L' U R U' L U R'
+
+y2 R U2 R' U2 R' F R F'
+
+R2 F R U2 R U' R' U2 F' R
+y2 L' U2 L F' R' F2 R U' R' F R F'
+y R U R' D R U' R U R' U R'
+L' U L' U L U' L U y' L' U L
+/H
+y R2 U2 R U2 R2
+y R2 U2 R' U2 R2
+y' R U2 R' U' R U R' U' R U' R'
+R U R' U R U' R' U R U2 R'
+
+y F R U R' U' R U R' U' R U R' U' F'
+y x' U2 R U2 R2 F2 R U2 x
+y F2 R' F2 R2 U2 R' F2
+R' F R F' R U R2 F R F' R U R'
+
+R U R' U R U R' F R' F' R
+R U R' U R U L' U R' U' L
+y R U' R' F U2 R2 F R U' R
+y2 R' F' R U' R' F' R F' R U R'
+
+F R2 U' R2 U' R2 U R2 F'
+y' R' U2 R y R' U R' U' R U' R
+y2 F R U R' U' R F' R U R' U' R'
+F R U' R' U R U2 R' U' R U R' U' F'
+/L
+y2 F' R U R' U' R' F R
+y F R U' R' U' R U R' F'
+R U R U' L' U R' U'
+y' F R F U' R' U F' R' U'
+
+y F R' F' R U R U' R'
+y x U R' U' L U R U' R'
+y' R' F' L' F R F' L F
+y F' U R U' R' F2 R U' R'
+
+y R U2 R2 F R F' R U2 R'
+y' R' U' R U R' F' R U R' U' R' F R2
+y' L' U2 L F' R' F2 R2 U' R'
+y' L' U2 R U' R' U2 L R U' R'
+
+y2 R' U R' U2 R U' R' U R U' R2
+y R U' R U' R U2 R' U R' U R'
+y' R U R' U R U' R' U R U' R' U R U2 R'
+y' R2 U R' U2 R U2 R' U R2
+
+y R U2 R' U' y' R2 U' R' U R2
+R U' R' U R U' R' F R' F' R2 U R'
+y R U R' U' R' F R2 U' R' U R U R' F'
+y2 x' R' U2 R' U' R U2 R' F R2 x
+
+R' F' R U R' U' R' F R2 U' R' U2 R
+y R' U' R U2 R' F R' F' R U' R
+y R U2 R' F' R U2 R' U R' F2 R
+y2 L' U2 L U y' R2 U R U' R2
+/Pi
+
+F R U R' U' R U R' U' F'
+R' U R2 U' R2 U' R2 U R'
+R U2 R2 U' R2 U' R2 U2 R
+R U' R2 U R2 U R2 U' R
+
+y' R' U' R' F R F' R U' R' U2 R
+R2 U R' U' F R F' R U' R2
+y2 R U R' U R D' R U' R' F'
+y F R U R' U' F' U' R U2 R' U' R U' R'
+
+R U' R' F R' F R U R' F R
+y2 R' F R F' R U' R' U' R U' R'
+R U' L' U R' U L U L' U L
+R U' R' U' R U R' U' L R U' R' U R'
+
+y' R U' R U' R' U R' F R2 F'
+y F R2 U' R2 U R2 U R2 F'
+y' R' F R U F U' R U R' U' F'
+y' F R' F' R U' R U R' U R' F R F'
+
+R U2 R' U' R U R' U2 R' F R F'
+R U R' U' R' F R2 U R' U' R U R' U' F'
+R U2 R' U2 R' F R2 U R' U' F'
+R2 U' R' U' F R2 U2 F' R2 F
+
+R' F2 R F' U2 R U' R' U' F
+y2 L' U2 L U L' U' L U2 L F' L' F
+y F R' F' R U2 R U' R' U R U2 R'
+L' U2 L F' U2 L F' L' U' F
+/S
+R U R' U R U2 R'
+y' R' U2 R U R' U R
+y L' U2 L U L' U L
+
+y' R' F R2 F' R U2 R' U' R2
+y2 R U R' U R' F R F' R U2 R'
+y' R' F R2 F' U' R' U' R2 U R'
+R' F R F' U R U R' U2 F R' F' R
+
+F R' F' R U2 R U2 R'
+
+R U' R' F R' F' R
+R U' R' F L' U' L
+R U' L' U R' U' L
+y2 L U' R' U L' U' R
+
+y2 R U' R U' R' U R' U' y R U' R'
+R U R' U' R' F R F' R U R' U R U2 R'
+y' R' U' R D' R' U R' U' R U' R
+y R' F' R2 U R' F' R' F R2 U' R'
+
+L' U2 L U2 L F' L' F
+R' F2 R U2 R U' R' F
+y2 R' U2 R U2 R B' R' B
+/T
+y' R U R' U' R' F R F'
+
+y L' U' L U L F' L' F
+y' F R F' R U R' U' R'
+y' F R U' R' U R U R' F'
+y R' F' R U R U' R' F
+
+F U' R U2 R' U' F2 R U R'
+y2 R' U' R U' R' U R U R' F' R U R' U' R' F R2
+y R U2 R2 F R F' R U' R' U R U2 R'
+R' U R2 D R' U2 R D' R2 U' R
+
+y R' U R' F U' R U F2 R2
+y2 R' U R' U2 R U2 R' U R2 U' R'
+R U' R U' R U R' U R' U R'
+y' R U R' U R U2 R' U2 R' U' R U' R' U2 R
+
+y2 F R U R' U' R U' R' U' R U R' F'
+y R U2 R' F2 R U2 R' U2 R' F2 R
+R U2 R' U R U2 R' U R' F R F'
+y R U R' U2 R U R' U R' F R F'
+
+R' U R U2 R2 F R F' R
+y' z R U R' U' R' F R2 U' R' U' R U R' F'
+y2 R' F R U2 R2 F R U' R
+y2 R' F R' F' R2 U2 R' U' R
+/U
+y' F R U R' U' F'
+y F U R U' R' F'
+y F' L' U' L U F
+y R' U' R' F R F' U R
+
+y2 R2 F2 R U R' F U' R U R2
+y R U' R U' R U' R' U R' U R'
+R U' R' F' L F' L' F2 U' R U R'
+y2 R U R2 U' R U2 R' U2 R U' R
+
+y' z' U2 R' U' R2 U' R' U' R U' R' U' x2
+y2 F R U R' U2 F' R U' R' F
+R' F R U' R' U' R U R' F' R U R' U' R' F R F' R
+y' L U2 R' U F' R U2 R' U R' F R
+
+x R U' R U' R' U L' U' L x2
+R2 F R F' R' F2 R U R' F R2
+y' F R' F' R U' R U' R' U2 R U' R'
+y' F U' R U R' U' y' R' U2 R U' R'
+
+y2 R U2 R' U R' F2 R F' R' F2 R
+R U' R2 F R F' R U R' U' R U R'
+R2 D' R U2 R' D R U2 R
+L U' L F' L' F L' U2 L U' L'
+
+R' U R' F R F' R U2 R' U R
+y2 R2 U R' U' R2 U' y L' U2 L
+y2 R2 D R' U2 R D' R' U2 R'
+///2x2
+//EG2
+/AS
+x U' R2 F R2 F' U R' U2 R' U x'
+
+R' U' R U' R' U2 R' F2 R2
+y R U2 R' U' R U' R B2 R2
+
+y2 L' U L F' R U R B2 R2
+
+y' R' U R' F R2 F R2 F'
+
+R' U' R U' R' U' R' F2 R F' R
+
+R2 F2 R U L U' R U L'
+y2 R2 F2 R F R F' R U R'
+/H
+y F2 R U2 R2 F2 R' F2
+R2 F U2 F2 R2 F' R2
+
+y R2 U2 R U2 B2 R2
+y R2 U2 R' U2 F2 R2
+y R2 F2 U2 R U2 R2
+
+R U' R2 U' F U' F U' R2 F R
+R' U' R U2 R2 F' R U' F R
+
+y' R U2 B2 R' U R U' F U' x'
+y R U' R' F U2 R2 F' R F' R
+/L
+y R2 B2 R2 F R' F' R U R U' R'
+y R' U' R' F' R U' R U' R' F R
+
+y2 F2 R2 F R U R' U' R' F R
+
+y2 R2 U' R U2 R' U2 R U' F2 R2
+y2 R2 F2 R U R' U2 R U' R' U R U' R2
+
+y' R' U L' U2 R' F R U' R' U' F' x2
+
+y F R' F' R U R U' R B2 R2
+
+y2 F' R U R' U' R' F R' F2 R2.
+/Pi
+F U' R U2 R U' R' U R' F'
+y' F2 U' F2 R U2 R F2 U' R2
+y2 R2 U' R2 F R2 F' R2 U R2
+
+R' U2 R2 U' R' F2 R2 F'
+R U' R2 U R2 U R2 U' R' F2 R2
+
+y2 R' F' U R' F R2 U2’ R' U R
+
+y R' F U' R U R' F2 U2 R
+y R U' F U' F' R F2 U2 R'
+
+y' R U2 R F2 R2 U' R U' R'
+y R' U' R' F2 R2 U R' F2 R
+
+y' R U R F2 R2 U' R U2 R'
+/S
+y' F U' R2 U' R' U2 R U' R2 F'
+y' R' F R2 F' R U2 R' U' F2 R2
+R' F R2 F' R U2 R' U' F2 R2
+
+R U R' U R U2 R B2 R2
+
+R U' R' F2 R2 F' L' U' L
+
+y F R2 F' R2 F' R U' R
+
+y2 R' F R' F2 R U R U R' U R
+R' U R' F R2 D' R U' R'
+
+R2 B2 R' U' L' U R' U' L
+/T
+y' F R F' R U R' U' R B2 R2
+y R' F' R U R U' R' F' R2 F2
+
+y F R' U2 R' U' R U2 F'
+
+y R' U R' F U' R U R2
+
+F2 R2 F' R U R' U' F'
+F2 R2 F U' R' F R F
+y2 R2 B2 R2 F R U R' U' F'
+
+y R' F2 R U' R' U R' F R U' R
+
+y R' U2 R' F2 R F2 R
+y z' U' R2 U' R2 U R2 U R2 z
+/U
+y' F U' R U2 R U' R' U2 R' U' F'
+y' R' U R' F U' R U' R' U2 R2
+
+y' F R U R' U' F R2 F2
+y F U R U' R' F R2 F2
+
+y2 R' U' R U R' F2 R U' R' U R
+
+R' F' U' F U2 L' U2 R U' L
+
+y2 R2 B2 R' U R' U' R' F R F'
+
+y2 R2 F2 R F' R U L F' L' F
+///3x3
+//PLL@view:LL
+/Ub
+R2 U (R U R' U') R' U' (R' U R')
+y2 (R' U R' U') R' U' (R' U R U) R2'
+/Ua
+(R U' R U) R U (R U' R' U') R2
+y2 (R U R' U) (R' U' R2 U') R' U R' U R [U2]
+y2 (R2 U' R' U') R U R U (R U' R)
+/Z
+(M2' U M2' U) (M' U2) (M2' U2 M') [U2]
+y' M' U (M2' U M2') U (M' U2 M2) [U']
+/H
+(M2' U M2') U2 (M2' U M2')
+/Aa
+x (R' U R') D2 (R U' R') D2 R2 x'
+y x' R2 D2 (R' U' R) D2 (R' U R') x
+/Ab
+x R2' D2 (R U R') D2 (R U' R) x'
+y x' (R U' R) D2 (R' U R) D2 R2' x
+/E
+x' (R U' R' D) (R U R' D') (R U R' D) (R U' R' D') x
+/Ga
+R2 U (R' U R' U') (R U' R2) D U' (R' U R D') [U]
+R2 u (R' U R' U') R u' R2 y' (R' U R)
+/Gb
+(F' U' F) (R2 u R' U) (R U' R u') R2'
+y' R' U' y F (R2 u R' U) (R U' R u') R2'
+y' D (R' U' R U) D' (R2 U R' U) (R U' R U') R2' [U']
+/Gc
+R2 U' (R U' R U) (R' U R2 D') (U R U' R') D [U']
+y2 R2' F2 (R U2' R U2') R' F (R U R' U') R' F R2
+/Gd
+D' (R U R' U') D (R2 U' R U') (R' U R' U) R2 [U]
+(R U R') y' (R2 u' R U') (R' U R' u) R2
+/Ra
+(R U' R' U') (R U R D) (R' U' R D') (R' U2 R') [U']
+y' (L U2 L' U2) L F' (L' U' L U) L F L2' [U]
+(R U R' F') (R U2' R' U2') (R' F R U) (R U2' R') [U']
+/Rb
+(R' U2 R U2') R' F (R U R' U') R' F' R2 [U']
+(R' U2 R' D') (R U' R' D) (R U R U') (R' U' R) [U']
+/Ja
+(R' U L' U2) (R U' R' U2 R) L [U']
+y' (L' U' L F) (L' U' L U) L F' L2' U L [U]
+/Jb
+(R U R' F') (R U R' U') R' F R2 U' R' [U']
+/T
+(R U R' U') (R' F R2 U') R' U' (R U R' F')
+/F
+(R' U' F')(R U R' U')(R' F R2 U')(R' U' R U)(R' U R)
+y (R' U2 R' U') y (R' F' R2 U') (R' U R' F) R U' F
+/V
+(R' U R' U') y (R' F' R2 U') (R' U R' F) R F
+/Y
+F (R U' R' U') (R U R' F') (R U R' U') (R' F R F')
+/Na
+(R U R' U) (R U R' F') (R U R' U') (R' F R2 U') R' U2 (R U' R')
+z (U R' D) (R2 U' R D') (U R' D) (R2 U' R D') [R'] z'
+/Nb
+(R' U R U') (R' F' U' F) (R U R' F) R' F' (R U' R)
+(R' U L' U2 R U' L) (R' U L' U2 R U' L) [U]
+///3x3
+//OLL@mask:oll,view:LL
+/OCLL
+R U2 R' U' R U' R'
+y' R' U' R U' R' U2 R
+
+R U R' U R U2' R'
+y' R' U2' R U R' U R
+
+(R U2 R') (U' R U R') (U' R U' R')
+y (R U R' U) (R U' R' U) (R U2' R')
+
+R U2' R2' U' R2 U' R2' U2' R
+
+(r U R' U') (r' F R F')
+y (R U R D) (R' U' R D') R2'
+
+y F' (r U R' U') r' F R
+x (R' U R) D' (R' U' R) D x'
+
+R2 D (R' U2 R) D' (R' U2 R')
+y2 R2' D' (R U2 R') D (R U2 R)
+/T
+(R U R' U') (R' F R F')
+
+F (R U R' U') F'
+/S
+(r' U2' R U R' U r)
+
+(r U2 R' U' R U' r')
+/C
+(R U R2' U') (R' F R U) R U' F'
+
+R' U' (R' F R F') U R
+/W
+(R' U' R U') (R' U R U) l U' R' U x
+y2 (R U R' F') (R U R' U') (R' F R U') (R' F R F')
+
+(R U R' U) (R U' R' U') (R' F R F')
+/E
+(r U R' U') M (U R U' R')
+
+(R U R' U') M' (U R U' r')
+/P
+(R' U' F) (U R U' R') F' R
+
+R U B' (U' R' U) (R B R')
+S (R U R' U') (R' F R f')
+
+y R' U' F' U F R
+f' (L' U' L U) f
+
+f (R U R' U') f'
+y2 F (U R U' R') F'
+/I
+f (R U R' U') (R U R' U') f'
+y2 F (U R U' R') (U R U' R') F'
+
+r' U' r (U' R' U R) (U' R' U R) r' U r
+
+(R' U' R U' R' U) y' (R' U R) B
+(R U R' U R U') y (R U' R') F'
+
+y (R' F R U) (R U' R2' F') R2 U' R' (U R U R')
+/F
+(R U R' U') R' F (R2 U R' U') F'
+(R' U' R) y r U' r' U r U r'
+
+(R U R' U) (R' F R F') (R U2' R')
+(R U R') y (R' F R U') (R' F' R)
+
+(R U2') (R2' F R F') (R U2' R')
+
+F (R U' R' U') (R U R' F')
+/K
+(r U' r') (U' r U r') y' (R' U R)
+F U R U' R2' F' R U (R U' R')
+
+(R' F R) (U R' F' R) (F U' F')
+
+(r U r') (R U R' U') (r U' r')
+
+(r' U' r) (R' U' R U) (r' U r)
+/A
+y (R U R' U') (R U' R') (F' U' F) (R U R')
+M U (R U R' U')(R' F R F') M'
+
+y' F U (R U2 R' U') (R U2 R' U') F'
+y' (F R' F) (R2 U' R' U') (R U R') F2
+
+(R U R' U R U2' R') F (R U R' U') F'
+
+(R' U' R U' R' U2 R) F (R U R' U') F'
+y (R' F R F') (R' F R F') (R U R' U') (R U R')
+/L
+F (R U R' U') (R U R' U') F'
+
+F' (L' U' L U) (L' U' L U) F
+R' U' (R' F R F') (R' F R F') U R
+
+r U' r2' U r2 U r2' U' r
+
+r' U r2 U' r2' U' r2 U r'
+y' (R U2 R' U' R U' R') F (R U R' U') F'
+
+(r' U' R U') (R' U R U') R' U2 r
+y r' U2' R (U R' U' R) (U R' U r)
+
+(r U R' U) (R U' R' U) R U2' r'
+y' (r U2 R' U') (R U R' U') R U' r'
+/B
+(r U R' U R U2' r')
+
+(r' U' R U' R' U2 r)
+y2 l' U' L U' L' U2 l
+
+r' (R2 U R' U R U2 R') U M'
+
+M' (R' U' R U' R' U2 R) U' M
+y F (R U R' U') F' U F (R U R' U') F'
+
+(L F') (L' U' L U) F U' L'
+F (R U R' U') F' (R' U' R U' R' U2 R)
+
+(R' F) (R U R' U') F' U R
+/O
+(R U2') (R2' F R F') U2' (R' F R F')
+
+F (R U R' U') F' f (R U R' U') f'
+y (r U r') U2 R U2' R' U2 (r U' r')
+
+f (R U R' U') f' U' F (R U R' U') F'
+
+f (R U R' U') f' U F (R U R' U') F'
+
+y R U2' (R2' F R F') U2' M' (U R U' r')
+(r U R' U R U2 r') (r' U' R U' R' U2 r)
+
+M U (R U R' U') M' (R' F R F')
+
+(R U R' U) (R' F R F') U2' (R' F R F')
+
+M U (R U R' U') M2' (U R U' r')
+(r U R' U') M2' (U R U' R') U' M'
+///3x3
+//F2L@mask:F2L
+/F2L1
+R' F R F'
+U2 R U2 R'
+M' U R U' r'
+y2 U L U' L'
+/F2L2
+y U' L' U L
+F R' F' R
+y' U' R' U R
+r U R' U' M
+/F2L3
+y L' U' L
+F' U' F
+y' R' U' R
+U M R U' R' U M'
+/F2L4
+R U R'
+y2 L U L'
+y F U F'
+/F2L5
+U' R U R' U2 R U' R'
+U' R U R' U' R U2 R'
+U' R U R' U R' F R F'
+F2 L' U' L U F2
+/F2L6
+d R' U' R U2 R' U R
+y U L' U' L U2 L' U L
+U' r U' R' U R U r'
+d R' U' R U R' U2 R
+/F2L7
+U' R U2 R' U2 R U' R'
+U' R U2 R' U' R U2 R'
+U' R U2 R' U R' F R F'
+M' U' M U2 r U' r'
+/F2L8
+d R' U2 R U2 R' U R
+r' U2 R2 U R2’ U r
+y U L' U2 L U2 L' U L
+d R' U2 R U R' U2 R
+/F2L9
+U' R U' R' U F' U' F
+U' R U' R' d R' U' R
+F R U R' U' F' R U' R'
+y' U R' U' R U' R' U' R
+/F2L10
+U' R U R' U R U R'
+U y' R' U R U' y R U R'
+U2 R U' R' U' R U R'
+d R' U R d' R U R'
+/F2L11
+U' R U2 R' U F' U' F
+U' R U2 R' d R' U' R
+y' R U2 R2 U' R2 U' R'
+F R' F' R U' R U' R' U R U' R'
+/F2L12
+R U' R' U R U' R' U2 R U' R'
+R' U2 R2 U R2 U R
+U F' U2 F U' R U R'
+U R U' R' U' R U R' U' R U R'
+/F2L13
+y' U R' U R U' R' U' R
+d R' U R U' R' U' R
+M' U' R U R' U' R U2 r'
+y U L' U L U' L' U' L
+/F2L14
+U' R U' R' U R U R'
+y L' U2 L U2 F U2 F' U F U' F'
+R U' R' U R U2 R' U2 R U' R'
+/F2L15
+R U R' U2 R U' R' U R U' R'
+y L' U L U2 y' R U R'
+M U r U' r' U' M'
+R U2 R' U R U R' U R U' R'
+/F2L16
+R U' R' U2 F' U' F
+R U' R' U2 y L' U' L
+R U' R' U d R' U' R
+U F U R U' R' F' R U R'
+/F2L17
+R U2 R' U' R U R'
+y L F' L' F L' U L U' L' U L
+U' R U' R' U2 R U2 R2 F R F'
+/F2L18
+y' R' U2 R U R' U' R
+y L' U2 L U L' U' L
+R' F R F' R U' R' U R U' R'
+R U R' U' R U R' U' F R' F' R
+/F2L19
+U R U2 R' U R U' R'
+U R U2 R2 F R F'
+R U' R' U R U' R' U R U R'
+y U F U2 F2 L F L'
+/F2L20
+y' U' R' U2 R U' R' U R
+y U' L' U2 L U' L' U L
+U' R U' R2 F R F' R U' R'
+d' L' U2 L U' L' U L
+/F2L21
+R U' R' U2 R U R'
+U2 R U R' U R U' R'
+y F R U2 R' F'
+R B U2 B' R'
+/F2L22
+F' L' U2 L F
+y' U2 R' U' R U' R' U R
+r U' r' U2 r U r'
+y' R' U R U2 R' U' R
+/F2L23
+R U R' U2 R U R' U' R U R'
+U R U' R' U' R U' R' U R U' R'
+U2 R2 U2 R' U' R U' R2
+y F' U' L' U L F L' U L
+/F2L24
+F U R U' R' F' R U' R'
+y U' L' U L U L' U L U' L' U L
+U' R U R2 F R F' R U' R'
+y' R' U' R U2 R' U' R U R' U' R
+/F2L25
+R' F' R U R U' R' F
+U' R' F R F' R U R'
+R' U' R' U' R' U R U R
+U' F' R U R' U' R' F R
+/F2L26
+U R U' R' U' F' U F
+U R U' R' F R' F' R
+y r U r' U' r' F r F'
+U R U' R' d' L' U L
+/F2L27
+R U' R' U R U' R'
+R U' R2 F R F'
+y L' U' L U2 F U' F'
+y' R' U' R U y U R U' R'
+/F2L28
+y L' U L U' L' U L
+R U R' U' F R' F' R
+y' R' U R U' R' U R
+R U R' U2 F' U F
+/F2L29
+R' F R F' R' F R F'
+y L' U' L U L' U' L
+y' R' U' R U R' U' R
+M' U R U' r' U R U' R'
+/F2L30
+R U R' U' R U R'
+y U' L' U' L U2 F U2 F' U F U' F'
+F R' F' R F R' F' R
+/F2L31
+U' R' F R F' R U' R'
+R U' R' y L' U2 L
+l F' R U' R' U l'
+R U' R' y' R' U2 R
+/F2L32
+R U R' U' R U R' U' R U R'
+U R U' R' U R U' R' U R U' R'
+R2 U R2 U R2 U2 R2
+R' F R F' R' F R F' R' F R F'
+/F2L33
+U' R U' R' U2 R U' R'
+U' R U' R' U R' F R F'
+y R' D R U' R' D' R
+R U R' U' F' U F R U' R' U F' U F
+/F2L34
+U R U R' U2 R U R'
+U' R U2 R' U R U R'
+y U L' U L U2 L' U L
+y' U R' U R U2 R' U R
+/F2L35
+U' R U R' U F' U' F
+U2 R U R' F R' F' R
+U M' U R U' r' R U' R'
+U' R U R' d R' U' R
+/F2L36
+U2 R' F R F' U2 R U R'
+U F' U' F U' R U R'
+R2 u R U R' U' u' R' U R'
+U2 F' U' F U R U' R'
+/F2L37
+R2 U2 F R2 F' U2 R' U R'
+R U' R' d R' U2 R U2 R' U R
+R U R' U2 R U2 R' U F' U' F
+R U2 R' U R U2 R' U F' U' F
+/F2L38
+R U R' U' R U2 R' U' R U R'
+R U' R' U' R U R' U2 R U' R'
+R2 U2 R' U' R U' R' U2 R'
+F R' F' R2 U2 R' U' R U R'
+/F2L39
+R U R' U2 R U' R' U R U R'
+R U' R' U R U2 R' U R U' R'
+R U2 R U R' U R U2 R2
+R U2 R' U R U' R' U R U R'
+/F2L40
+R U' R' F R U R' U' F' R U' R'
+r U' r' U2 r U r' R U R'
+R F U R U' R' F' U' R'
+F' L' U2 L F R U R'
+/F2L41
+R U R' U' R U' R' U2 y' R' U' R
+R U F R U R' U' F' R'
+R U' R' F' L' U2 L F
+R U' M' U' r' U2 r U r'
+///3x3
+//COLL@view:LL,mask:COLL
+/AS
+R' U' R U' R' U2 R
+y R U2 R' U' R U' R'
+y2 L' U' L U' L' U2 L
+y' L U2 L' U' L U' L'
+
+y R' U' R U' R' U R' D' R U R' D R2
+y2 R2 D R' U R D' R' U R' U' R U' R'
+y' L' U' L U' L' U L' D' L U L' D L2
+y2 R' U2 F' R U R' U' R' F R2 U R' U R
+
+L R' U' R U L' U2 R' U2 R
+y2 R L' U' L U R' U2 L' U2 L
+R U R' F' R U2 R' U2 R' F R2 U' R'
+y2 R2 D R' U2 R D' R2 U' R U' R'
+
+R' U' R U R' F R U R' U' R' F' R2
+y2 R U2 R' U2 L' U R U' R' L
+y2 R' U' R U' R2 D' R U2 R' D R2
+y2 M R U2 R' U2 R' F R F' M'
+
+R' U L U' R U L'
+y2 L' U R U' L U R'
+y2 r' F R F' r U R'
+
+R U' R' U2 R U' R' U2 R' D' R U R' D R
+R U R' F' R U2 R' U' R U' R' F R U' R'
+R' U' R U' L U' R' U L' U2 R
+y2 L' U' L U' R U' L' U R' U2 L
+/S
+R U R' U R U2 R'
+y2 L U L' U L U2 L'
+y' R' U2 R U R' U R
+y L' U2 L U L' U L
+
+L' U2 L U2 R U' L' U L R'
+y2 R U R' U R2 D R' U2 R D' R2
+L' U2 L U2 l F' L' F M'
+y2 R' U2 R U2 L U' R' U L' R
+
+L' R U R' U' L U2 R U2 R'
+y2 R2 D' R U2 R' D R2 U R' U R
+F R' U' R2 U' R2 U2 R2 U' R' F'
+y B' U' R U R' B U R U2 R'
+
+y' R U R' U R U' R D R' U' R D' R2
+y R' U' R U' R2 F' R U R U' R' F U2 R
+y' F R' U2 R F' R' F U2 F' R
+y2 R2 D' R U' R' D R U' R U R' U R
+
+R U' L' U R' U' L
+z D R' U' R D' R' U R z'
+y2 L U' R' U L' U' R
+y' M' U R U' r' F R' F' R
+
+F' R U2 R' U2 R' F2 R U R U' R' F'
+F R U' R2 U2 R U R' U R2 U R' F'
+y2 R U R' F' R U R' U R U2 R' F R U' R'
+R' U2 L U' R U L' U R' U R
+/L
+y' R U2 R' U' R U R' U' R U R' U' R U' R'
+y2 R' U' R U' R' U R U' R' U R U' R' U2 R
+R' U' R U' R' U2 R U' R U R' U R U2 R'
+y' R U R' U R U' R' U R U' R' U R U2 R'
+
+R' U2 R' D' R U2 R' D R2
+y2 L' U2 L' D' L U2 L' D L2
+y' R' U2 R U R2 D' R U R' D R2
+y' r D r' U r D' r' U y R U2 R'
+
+y R U2 R D R' U2 R D' R2
+R' F' R U R' U' R' F R2 U' R' U2 R
+R' D' r U2 r' D R U2 R U R'
+y' L U2 L D L' U2 L D' L2
+
+x' R U' R' D R U R' D' x
+y F R' F' r U R U' r'
+y' l' U' L' U R U' L U x'
+y F l' U' L U l F' L'
+
+y2 F' r U R' U' r' F R
+y' F R U' R' U' R U2 R' U' F'
+y2 r U R U' r' F R' F'
+y x R' U R D' R' U' R D x'
+
+y' R' U' R U R' F' R U R' U' R' F R2
+y r U2 R2 F R F' R U2 r'
+F R U R' U' R U' R' U2 R U2 R' U' F'
+R2 F' R U R U' R' F R U' R' U R
+/U
+R' U' R U' R' U2 R2 U R' U R U2 R'
+y2 R U R' U R U2 R2 U' R U' R' U2 R
+y' R U R' U' R U' R' U2 R U' R' U2 R U R'
+y2 R U R' U R U2 R' U R U2 R' U' R U' R'
+
+R' F R U' R' U' R U R' F' R U R' U' R' F R F' R
+R2 F' R U R2 U' R' F R U' R2 U R2 U R'
+y' R' U' R F R2 D' R U R' D R2 U' F'
+y' L' U L U' F R' F R F2 L F' L' F
+
+y2 R2 D R' U2 R D' R' U2 R'
+R' U L' U R U' L U2 R' U R
+x' R U' R' D R U2 R' D' R U' R' x
+R' U' R U' R' U2 R2 U' L' U R' U' L
+
+F R U' R' U R U R' U R U' R' F'
+y2 R' F2 R U2 R U2 R' F2 R U2 R'
+x' R2 D2 R' U2 R D2 R' U2 R'
+y R U R2 U' R' F R U R2 U' R' F'
+
+R2 D' R U2 R' D R U2 R
+y2 L2 D' L U2 L' D L U2 L
+L U' R U' L' U R' U2 L U' L'
+y2 x R' U R D' R' U2 R D R' U R x'
+
+R' U2 R F U' R' U' R U F'
+R2 D' R U R' D R U R U' R' U' R
+R' U2 R U2 R' F' R U R' U' R' F R2
+R U' R' U' R U R D R' U R D' R2
+/T
+R U2 R' U' R U' R2 U2 R U R' U R
+y' R U R' U R U2 R' U' R U2 R' U' R U' R'
+R U2 R' U' R U' R' U R U R' U R U2 R'
+y' R U R' U R U2 R' L' U' L U' L' U2 L
+
+R' U R U2 R' L' U R U' L
+y2 R' F R U R' U' R' F' R2 U' R' U2 R
+y2 R U' R' U2 L R U' R' U L'
+R' U2 R U R2 F R U R U' R' F' R
+
+y l' U' L U R U' r' F
+y2 x' R U R' D R U' R' D' x
+y R' F' r U R U' r' F
+y' F R F' r U R' U' r'
+
+y2 F R U R' U' R U' R' U' R U R' F'
+y' x' R U2 R D2 R' U2 R D2 R2 x
+y R U2 R' F2 R U2 R' U2 R' F2 R
+F U' L' U R2 U' L U R2 F'
+
+y' r U R' U' r' F R F'
+R U R D R' U' R D' R2
+R' F' R U R' U' R' F R U R
+y' R U R' U' L' U R U' R' L
+
+R' U R2 D r' U2 r D' R2 U' R
+y2 R U' R2 D' r U2 r' D R2 U R'
+y2 R' U' R U' R' U R U R' F' R U R' U' R' F R2
+R' U' R U R2 D' R U2 R' D R2 U' R' U R
+/Pi
+R U2 R2 U' R2 U' R2 U2 R
+f R U R' U' f' F R U R' U' F'
+R' U2 R2 U R2 U R2 U2 R'
+y2 L' U2 L2 U L2 U L2 U2 L'
+
+R' F2 R U2 R U2 R' F2 U' R U' R'
+y F U R U' R' U R U' R2 F' R U R U' R'
+R' U2 R U R' U' R U2 L U' R' U R L'
+y2 L' U' L U L F' L2 U' L U L' U' L U F
+
+R' U' F' R U R' U' R' F R2 U2 R' U2 R
+y F U R U' R' U R U2 R' U' R U R' F'
+R U2 R' U L' U2 R U R' U' R U' R' L
+y' B' R2 U R2 U' R2 U' S R2 F z'
+
+R U R' U' R' F R2 U R' U' R U R' U' F'
+y' R' U2 R U R' U R2 U' L' U R' U' L
+R U R' U R U2 R' U' R U' L' U R' U' L
+R U2 R' U' R U R' U2 r' F R F' M'
+
+R U' L' U R' U L U L' U L
+y' R U R' U F' R U2 R' U2 R' F R
+r U' r' U' r U r' U' x' R2 U' R' U R' x
+y2 L' U R U' L U' R' U' R U' R'
+
+R U D' R U R' D R2 U' R' U' R2 U2 R
+R2 D' R U R' D R U R U' R' U R U R' U R
+F R2 U' R U' R U' R' U2 R' U R2 F'
+y R U2 R' U' F' R U2 R' U' R U' R' F R U' R'
+/H
+R U R' U R U' R' U R U2 R'
+y' R U2 R' U' R U R' U' R U' R'
+R' U' R U' R' U R U' R' U2 R
+L U L' U L U' L' U L U2 L'
+
+F R U' R' U R U2 R' U' R U R' U' F'
+L' U R U' L U' R' U2 r' F R F' M'
+f R2 S' U' R2 U' R2 U R2 F'
+R L' U' L U' L' U L U2 R' U L' U2 L
+
+R U R' U R U L' U R' U' L
+R' F' R U2 R U2 R' F U' R U' R'
+R U R' U R U r' F R' F' r
+R' U' R U' R' U' L U' R U L'
+
+y F R U R' U' R U R' U' R U R' U' F'
+y F U R U' R' U R U' R' U R U' R' F'
+y R U R' U y' R' U R U' R2 F R F' R
+y R' U' R' F R F' R' F R F' R' F R F' U R
+///3x3
+//WV@mask:WV
+/WV1
+U L' U2 R U R' U2 L
+U' L' U2 R U' R' U2 L
+y' U r D r' U' r D' r'
+R2 D R' U R D' R2 U R U' R'
+/WV2
+U R U' R'
+/WV3
+R' F R U R U' R' F'
+U' L U' R U L' U R'
+/WV4
+U R2 D R' U' R D' R2
+/WV5
+U R U' R' U R' U' R U' R' U2 R
+U R U' R' U2 R U2 R' U' R U' R'
+U2 R2 B R' U' R' U R B' U2 R'
+U R U' R' U R' U L U' R U L'
+/WV6
+R U' R' U2 R U' R' U2 R U R'
+U' R' D' R U2 R' D R2 U' R'
+/WV7
+U R U R' U' R U' R'
+R' U' R U R U' R' U' R' U R
+/WV8
+U2 R U' R' U R U2 R'
+/WV9
+U2 F' R U2 R' U2 R' F R
+U L' U2 R U L U' L' U R' U2 L
+U2 F2 R U2 R' U2 R' F2 R
+U2 L' R U R' U' R U R' U' L U' R U' R'
+/WV10
+R' F R2 U R' U' R U R' U' F'
+U R U R2 U' R2 U' R2 U2 R
+U2 F2 L' U L U L' U' L F2
+/WV11
+U2 R' U' R2 U' R2 U2 R
+/WV12
+R' F2 R F2 U L' U L
+U R U2 L U L' R' U2 L U L'
+/WV13
+U2 R U2 R2 U' R U' R' U2 R
+R' F R F' R' U' F' U F R
+U' F2 L' U L U' L' U' L F2
+/WV14
+U2 R2 D R' U2 R D' R2
+U2 L' U R U' L U2 R'
+/WV15
+L' U R U' R' L
+r' F R F' M'
+L' U R U' M' x'
+/WV16
+U2 L' R U R' U' L R U2 R'
+U R' D' R U R' D R2 U2 R'
+U2 R U' R' U' R' F R U R U' R' F'
+U2 M x U R' U' L R U2 R'
+/WV17
+R' F' R U2 R U2 R' F
+U L' U2 R U' R' U2 L U R U' R'
+U2 F2 L F2 L' U' L' U L
+/WV18
+U2 R U2 R'
+/WV19
+R' F2 R2 U' R' U' R U R' F2
+U2 L' U R U' R' L U' R U' R'
+/WV20
+U R U' R' U' R U R' U R U2 R'
+U L' U2 L R U R' U L' U L
+/WV21
+U R U' R2 U2 R U R' U R
+U2 R U' R D R' U' R D' R2
+/WV22
+U R U R D R' U2 R D' R2
+U R2 D R' U R D' R' U2 R'
+/WV23
+R2 U R' U R' U' R U R U2 R2
+U2 R U R' U' R U R D R' U R D' R2
+U2 R' U L U' R2 U L' U R'
+U2 R U' R' U L' U R U' R' L U' R U' R'
+/WV24
+U2 R U' R' U R U' R' U R U2 R'
+/WV25
+U2 R U2 R2 U2 R U R' U R
+U2 R U' R' U R U' R D R' U' R D' R2
+/WV26
+U R U' R2 U' R U' R' U2 R
+U R U R' U F2 L' U L U' L' U' L F2
+/WV27
+U R U R' U' R U R' U' R U' R'
+///3x3
+//CMLL@view:LL,mask:CMLL
+/AS
+U R U2 R' U' R U' R'
+R' U' R U' R' U2 R
+U2 L' U' L U' L' U2 L
+U r U2 R' U' R U' r'
+
+U2 R2 D R' U R D' R' U R' U' R U' R'
+U2 l' U R U' L2 U2 R' U R U2 L2 x'
+U R' U' R U' R' U R' D' R U R' D R2
+U R U2 R2 F2 R F' R' F2 R2 U2 R'
+
+U2 F' r U r' U2 r' F2 r
+U2 F' L F L' U2 L' U2 L
+U' x' F U' R U L' U2 R' U2 R
+U F R U' R' U R U2 R' U' F'
+
+U2 R U2 R' U2 R' F R F'
+U2 R U2 r' U2 R' F R F' M'
+U2 r U2 r' U2 R' F R F'
+U2 R U2 R' U2 r' F R F' M'
+
+U2 L' U R U' L U R'
+R' U L U' R U L'
+U2 R' F R F' r U r'
+U2 r' F R F' r U R'
+
+R U R' F' R U2 R' U' R U' R' F R U' R'
+U' R' U' R U' R' U R' F R F' U R
+L' U' L U' L F' L' F L' U2 L
+R U2 R' F R' F' R U' R U' R'
+/H
+R U2 R' U' R U R' U' R U' R'
+U' R U R' U R U' R' U R U2 R'
+U' R' U' R U' R' U R U' R' U2 R
+r U' r' U' r U r' U r U r'
+
+U' R U R' U R U L' U R' U' L
+U2 r U' r2 D' r U' r' D r2 U r'
+U' R' F' R U2 R U2 R' F U' R U' R'
+U' R U R' U R U r' F R' F' r
+
+U R U2 R2 F R F' U2 R' F R F'
+U R U2 R2 U' R U' R' U2 F R F'
+R' F2 D R2 U R2 D' F2 R
+U2 R' F' R U2 R' F2 R U' F U F'
+
+F R U R' U' R U R' U' R U R' U' F'
+y' x' U' R U' R' U2 R' F r U' R U2 r' x
+R' F R U2 R' F' R U F R U R' U F'
+F U R U' R' U R U' R' U R U' R' F'
+/L
+U' R U2 R' U' R U R' U' R U R' U' R U' R'
+U R U2 R' U' R U' R' U2 R U R' U R U2 R'
+U2 R' U' R U' R' U R U' R' U R U' R' U2 R
+F' R D2 R' F U2 F' R D2 R' F
+
+R' U2 R' D' R U2 R' D R2
+U2 F U2 F' U' R' F' R U' R' F' R
+U2 R' F2 R' U' R F2 R' U R2
+U2 L' U2 L' D' L U2 L' D L2
+
+U R U2 R D R' U2 R D' R2
+R' F' R U R' U' R' F R2 U' R' U2 R
+U R' U' R U2 L' U R' U' L U' R
+U' l U R' D R U2 R' D' R U l'
+
+U F R' F' R U R U' R'
+l U' R' D R U R' D' x
+U2 R2 D R' U R D' R' U' R'
+U' L' U' L' U R U' L U x'
+
+U F R U' R' U' R U R' F'
+U l' U R D' R' U' l B
+U2 F' r U R' U' r' F R
+U' R' U r U f R' f'
+
+U R U2 R2 F R F' R U2 R'
+U r U2 R2 F R F' R U2 r'
+U' R' U' R U R' F' R U R' U' R' F R2
+U' L' U2 R U' r' U2 R l U' R'
+/O
+U R U R' F' R U R' U' R' F R2 U' R'
+R' U L' U2 R U' R' U2 R2 x'
+U R U R' U' R' F R2 U' R' U' R U R' F'
+R' U L' U2 R U' R' U2 R L
+
+F R U' R' U' R U R' F' R U R' U' R' F R F'
+R' U L' U2 R U' x' U L' U2 R U' R x'
+R2 D r' U r D' R2 U' F' U' F
+r' U' r' D' r U' r' D r U r' D' r U r' D r2
+/Pi
+F R U R' U' R U R' U' F'
+R U2 R2 U' R2 U' R2 U2 R
+U2 F' L' U' L U L' U' L U F
+f R U R' U' R U R' U' f'
+
+U F R' F' R U2 R U' R' U R U2 R'
+l U R' D R U' R U' R2 D' R U l'
+R' U' R U' R' U2 R U' L' U R U' L U R'
+U2 L' U2 L U L' U' L U2 L F' L' F
+
+U' R' F R U F U' R U R' U' F'
+R' F2 D R2 U' R2 D' F2 R
+U2 F U' F' U R' F2 R U2 R' F R
+F R' F' U2 R U R' U R2 U2 R'
+
+R U2 R' U' R U R' U2 R' F R F'
+R U2 R' U2 R' F R2 U R' U' F'
+R U R' U R U2 R' U' R U' L' U R' U' L
+U F' L F L' U2 L' U L U' L' U2 L
+
+U' r U' r2 D' r U r' D r2 U r'
+U2 L' U R U' L U' R' U' R U' R'
+U2 R' F R F' r U' R' U' R U' r'
+U2 r' F R F' r U' R' U' R U' R'
+
+U' R' U' R' F R F' R U' R' U2 R
+U2 R' U' R U' R' U F' U F R
+L' U' L U' L' U L F R U R' F'
+/S
+R U R' U R U2 R'
+r U R' U R U2 r'
+U L' U2 L U L' U L
+U l' U2 l U L' U L
+
+L' U2 L U2 L F' L' F
+r' F2 r U2 r U' r' F
+U2 R' U2 R U2 R f' U' f
+L' U2 L U2 l F' L' F M'
+
+F R' F' R U2 R U2 R'
+x U R' U' L U2 R U2 R'
+F R' F' R U2 r U2 r'
+
+U' R U R' U R U' R D R' U' R D' R2
+R U R' U' R' F R F' R U R' U R U2 R'
+r U' L' U R2 U2 L U' L' U2 R2 x'
+U2 R2 D' R U' R' D R U' R U R' U R
+
+R U' L' U R' U' L
+L F' L' F l' U' l
+
+U2 R U R' U R' F R F' R U2 R'
+U2 R U R' U L' U R U' L U2 R'
+U2 R U R' F' R U R' U R U2 R' F R U' R'
+R' U2 l U' R U l' U R' U R
+/T
+R U2 R' U' R U' R2 U2 R U R' U R
+F R' F R2 U' R' U' R U R' F2
+r U2 R' U' R U' r2 U2 R U R' U r
+U2 R' U2 R2 B2 D B D' B R2 U2 R
+
+R' U r U2 R2 F R F' r
+r' U r U2 R2 F R F' R
+R' U r U2 R2 F R F' R
+r' U r' U2 l U' l' U2 r2 B'
+
+U L' U' L U L F' L' F
+U R' F' r U R U' r' F
+U r' F' r U r U' r' F
+U' F R U' R' U R U R' F'
+
+r' D' r U r' D r U' r U r'
+F R' U' R F' R' U F' R
+U R' D R U' R U R' U R' D' R
+U2 F R U R' U' R U' R' U' R U R' F'
+
+U' R U R' U' R' F R F'
+R U R D R' U' R D' R2
+U' r U R' U' L' U l F'
+
+U2 r2 D' r U r' D r2 U' r' U' r
+R' U R2 D r' U2 r D' R2 U' R
+R2 U' R F R' U R2 U' R' F' R
+R U' R' U' R U' R' F' U' F U2 R U R'
+/U
+R' U' R U' R' U2 R2 U R' U R U2 R'
+R2 F U' F U F2 R2 U' R' F R
+U' F2 R U' R' U R U R2 F' R F'
+U2 R U R' U R U2 R2 U' R U' R' U2 R
+
+U' F R2 D R' U R D' R2 U' F'
+U' L U' R' U L' U2 F' U F R
+R' F R U' R' U' R U R' F' R U R' U' R' F R F' R
+U R' U L U' R U2 F U' F' L'
+
+U2 R2 D R' U2 R D' R' U2 R'
+r U' r' U' r U' r' U' F' U2 F
+L F' L' U' L F' L' U' F' U2 F
+
+U2 R' F2 R U2 R U2 R' F2 R U2 R'
+y2 r U' r' U r' D' r U' r' D r
+U2 R' F U' R F R' U R F'
+U' R' D R U' R U' R' U R' D' R
+
+R2 D' R U2 R' D R U2 R
+R' F R U R' F R U F U2 F'
+
+U' F R U R' U' F'
+U F U R U' R' F'
+U2 R' U' F' U F R</textarea>
+</body>
+
+</html>
