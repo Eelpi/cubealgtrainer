@@ -343,6 +343,9 @@ function parseAlgSets(text) {
                     caSe.addAlg(alg);
                     algCounter++;
                 }
+            } else {
+                success = false;
+                invalidLine = i;
             }
         } else {
             success = false;
