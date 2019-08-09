@@ -331,9 +331,15 @@ function parseAlgSets(text) {
                 subset.addCase(caSe);
                 caseCounter++;
             }
-            if (line !== '') {
-                caSe.addAlg(cleanAlg(line));
-                algCounter++;
+            if (line.trim() != '') {
+                var alg = cleanAlg(line);
+                if (!evalAlg(alg)) {
+                    success = false;
+                    invalidLine = i;
+                } else {
+                    caSe.addAlg(alg);
+                    algCounter++;
+                }
             }
         } else {
             success = false;
@@ -415,6 +421,29 @@ function trans(alg, n) {
     }
 }
 
+function evalAlg(alg, event) {
+    var validMoves = ["R", "U", "D", "F", "L", "B"];
+    var validMoves3 = ["r", "u", "d", "f", "l", "b", "M", "E", "S"];
+    validMoves = event === "3x3" ? validMoves.concat(validMoves3) : validMoves;
+    var moves = alg.split(" ");
+    for (let i = 0; i < moves.length; i++) {
+        var move = moves[i].split("");
+        console.log(move);
+        if (!validMoves.includes(move[0])) {
+            return false;
+        } else if (move.length > 1) {
+            if (move[1] != "2" && move[1] != "'") {
+                return false;
+            } else if (move.length === 3 && move[2] != "2" && move[2] != "'") {
+                return false;
+            } else if (move.length > 3) {
+                return false;
+            }
+        }
+    }
+    return true;
+}
+
 function transY(alg) {
     return alg
         .replace(/R/g, "A").replace(/B/g, "R").replace(/L/g, "B")
@@ -422,7 +451,9 @@ function transY(alg) {
         .replace(/b/g, "r").replace(/l/g, "b").replace(/f/g, "l")
         .replace(/a/g, "f").replace(/S/g, "C").replace(/M'/g, "S")
         .replace(/M2'/g, "S2").replace(/M2/g, "S2")
-        .replace(/M/g, "S'").replace(/C/g, "M");
+        .replace(/M/g, "S'").replace(/C/g, "M")
+        .replace(/z/g, "g").replace(/x/g, "z")
+        .replace(/g'/g, "x").replace(/g/g, "x'");
 }
 
 function transYP(alg) {
@@ -432,7 +463,9 @@ function transYP(alg) {
         .replace(/r/g, "b").replace(/f/g, "r").replace(/l/g, "f")
         .replace(/a/g, "l").replace(/S/g, "C").replace(/M/g, "S")
         .replace(/C2/g, "M2").replace(/C2'/g, "M2'")
-        .replace(/C'/g, "M").replace(/C/g, "M'");
+        .replace(/C'/g, "M").replace(/C/g, "M'")
+        .replace(/x/g, "g").replace(/z/g, "x")
+        .replace(/g'/g, "z").replace(/g/g, "z'");
 }
 
 function transYT(alg) {
@@ -444,7 +477,10 @@ function transYT(alg) {
         .replace(/M2/g, "C").replace(/M2'/g, "G").replace(/M'/g, "A")
         .replace(/M/g, "M'").replace(/C/g, "M2").replace(/G/g, "M2'")
         .replace(/A/g, "M").replace(/S'/g, "A")
-        .replace(/S/g, "S'").replace(/A/g, "S");
+        .replace(/S/g, "S'").replace(/A/g, "S")
+        .replace(/x/g, "h").replace(/z/g, "i")
+        .replace(/h'/g, "x").replace(/h/, "x'")
+        .replace(/i'/g, "y").replace(/i/g, "y'")
 }
 
 function cleanAlg(alg) {
