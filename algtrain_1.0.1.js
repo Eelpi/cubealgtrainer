@@ -97,7 +97,8 @@ var textEn = [
     "Are you sure you want to reset all data (including algsets)?",
     "Input algset(s) here...",
     "Cube Algorithm Trainer",
-    "Are you sure you want to delete this algset?"
+    "Are you sure you want to delete this algset?",
+    "Please select at least one subset"
 ];
 var textJp = [
     "キャンセル",
@@ -106,9 +107,10 @@ var textJp = [
     "エラー",
     "$0行は無効な式を含んでいます:<br>$1",
     "手順を含めデータを全て初期化しますか？",
-    "こちらに手順をインプットしてください",
+    "こちらに手順を入力してください",
     "キューブ手順トレーナー",
-    "この手順セットを削除しますか？"
+    "この手順セットを削除しますか？",
+    "サブセットを最低１つ選択してください"
 ];
 var langText = textEn;
 var txtCancel = 0;
@@ -120,6 +122,7 @@ var txtConfirmReset = 5;
 var txtInputPlaceholder = 6;
 var txtTitle = 7;
 var txtConfirmDelAlgset = 8;
+var txtNoSubsetsSelected = 9;
 
 function replaceTxtData() {
     var text = arguments[0];
@@ -314,13 +317,19 @@ function parseAlgSets(text) {
                     options = "{" + optArr.join(",") + "}";
                     options = JSON.parse(options);
                 }
-                algset = new AlgSet(event, algsetName, []);
-                // Object not empty
-                if (!(Object.entries(options).length === 0 && options.constructor === Object)) {
-                    algset.options = options;
+                // Cannot add existing algset
+                if (algsets.some(algset => algsetName === algset.name) || tempAlgsets.some(algset => algsetName === algset.name)) {
+                    success = false;
+                    invalidLine = i;
+                } else {
+                    algset = new AlgSet(event, algsetName, []);
+                    // If options is not empty, add it to algset
+                    if (!(Object.entries(options).length === 0 && options.constructor === Object)) {
+                        algset.options = options;
+                    }
+                    tempAlgsets.push(algset);
+                    state = 2;
                 }
-                tempAlgsets.push(algset);
-                state = 2;
             } else if (state === 2 || (state === 3 && subset.cases.length > 0)) {
                 subset = new Subset(line.substring(1, line.length));
                 algset.addsubset(subset);
@@ -339,9 +348,7 @@ function parseAlgSets(text) {
                 if (!evalAlg(alg, event)) {
                     success = false;
                     invalidLine = i;
-                    console.log(alg);
                 } else {
-                    console.log(algset.name + "-" + subset.name + caSe.n + ":" + alg);
                     caSe.addAlg(alg);
                     algCounter++;
                 }
@@ -364,7 +371,6 @@ function parseAlgSets(text) {
             hidePopup($('#algsets'));
         }
     } else {
-        console.log(lineIterate[invalidLine]);
         var msg = replaceTxtData(langText[txtErrorMsg], invalidLine, lineIterate[invalidLine]);
         alertPopup(langText[txtErrorTitle], msg);
     }
@@ -808,7 +814,7 @@ function nextScramble() {
         }
     });
     if (enabledSubsets.length === 0) {
-        $(".scramble").text("Please select at least one subset");
+        $(".scramble").text(langText[txtNoSubsetsSelected]);
         noSubsetSelected = true;
         return 0;
     }
