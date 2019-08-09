@@ -120,6 +120,7 @@ var txtTitle = 7;
 
 function replaceTxtData() {
     var text = arguments[0];
+    console.log(text);
     for (var i = 1; i < arguments.length; i++) {
         text = text.replace("$" + (i - 1), arguments[i]);
     }
@@ -428,7 +429,6 @@ function evalAlg(alg, event) {
     var moves = alg.split(" ");
     for (let i = 0; i < moves.length; i++) {
         var move = moves[i].split("");
-        console.log(move);
         if (!validMoves.includes(move[0])) {
             return false;
         } else if (move.length > 1) {
@@ -847,9 +847,7 @@ function nextScramble() {
             var i = -1;
             while (rng > slice) {
                 i++;
-                console.log(i + ": " + rng + ">" + slice);
                 slice += parseFloat(enabledAverages[i].time);
-                console.log("Next: " + slice);
             }
             subset = currentAlgSet().getSubset(enabledAverages[i].subset);
             enabledCases = subset.cases.filter(c => c.enabled);
