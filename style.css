@@ -247,7 +247,8 @@ div.subbuttoncontainer {
 }
 
 .popup#algsets,
-.popup#manager {
+.popup#manager,
+.popup.example {
     width: 90%;
     height: 90%;
     display: flex;
@@ -265,6 +266,16 @@ div.subbuttoncontainer {
     resize: none;
     border: none;
     outline: none;
+}
+
+.popup.example textarea {
+    width: 100%;
+    height: 100%;
+    resize: none;
+}
+
+.popup.example table {
+    height: 100%;
 }
 
 .container {
