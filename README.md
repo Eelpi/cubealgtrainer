@@ -4,7 +4,7 @@ An algorithm trainer for cube puzzles. Currently it supports 3x3x3 and 2x2x2.
 
 ## How to use
 
-First, select an algorithm set from the navigation menu on the top of the page. It will generate a timer with scrambles that you can use on your puzzle. You can disable subsets by unchecking the checkboxes below the timer display. That way you won't get scrambles from those subsets. You can also disable specific cases by unchecking the checkboxes in the algset manager window.
+First, select an algorithm set from the navigation menu at the top of the page. It will generate a timer with scrambles that you can use on your puzzle. You can disable subsets by unchecking the checkboxes below the timer display. That way you won't get scrambles from those subsets. You can also disable specific cases by unchecking the checkboxes in the algset manager window.
 
 ## Smart training
 
