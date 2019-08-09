@@ -523,8 +523,13 @@ function popupVisible() {
     return $(".popupback:visible").length > 0;
 }
 
+var touching = false;
+
 function timerPressed(e) {
-    if (e.type === "touchstart" || e.keyCode == 32) {
+    if ((e.type === "touchstart" && !touching) || e.keyCode == 32) {
+        if (e.type === "touchstart") {
+            touching = true;
+        }
         if (currentAlgSetIndex !== -1 && !popupVisible()) {
             $(".timerdisplay").css('color', '#009dff');
             if (typeof start === 'undefined') {
@@ -537,12 +542,18 @@ function timerPressed(e) {
                 nextScramble();
             }
         }
+        console.log(touching);
         return false;
     }
+    console.log(touching);
 }
 
 function timerUnpressed(e) {
-    if ((e.type === "touchend" || e.keyCode == 32) && currentAlgSetIndex !== -1 && !popupVisible()) {
+    console.log(e);
+    if (((e.type === "touchend" && touching) || e.keyCode == 32) && currentAlgSetIndex !== -1 && !popupVisible()) {
+        if (e.type === "touchend") {
+            touching = false;
+        }
         $(".timerdisplay").css('color', '#000000');
         if (typeof start !== 'undefined') {
             var end = new Date();
@@ -558,6 +569,8 @@ function timerUnpressed(e) {
             running = false;
         }
     }
+
+    console.log(touching);
 }
 
 $(document).keydown(function(e) { timerPressed(e) });
