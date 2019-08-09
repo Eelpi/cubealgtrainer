@@ -97,7 +97,8 @@ var textEn = [
     "Invalid input at line $0:<br>$1",
     "Are you sure you want to reset all data (including algsets)?",
     "Input algset(s) here...",
-    "Cube Algorithm Trainer"
+    "Cube Algorithm Trainer",
+    "Are you sure you want to delete this algset?"
 ];
 var textJp = [
     "キャンセル",
@@ -107,7 +108,8 @@ var textJp = [
     "$0行は無効な式を含んでいます:<br>$1",
     "手順を含めデータを全て初期化しますか？",
     "こちらに手順をインプットしてください",
-    "キューブ手順トレーナー"
+    "キューブ手順トレーナー",
+    "この手順セットを削除しますか？"
 ];
 var txtCancel = 0;
 var txtParseSuccessTitle = 1;
@@ -117,6 +119,7 @@ var txtErrorMsg = 4;
 var txtConfirmReset = 5;
 var txtInputPlaceholder = 6;
 var txtTitle = 7;
+var txtConfirmDelAlgset = 8;
 
 function replaceTxtData() {
     var text = arguments[0];
@@ -1033,13 +1036,15 @@ function managerOption(input) {
 }
 
 function deleteAlgset() {
-    var tag = $('.algsetSelect').val();
-    $('tbody.' + tag).remove();
-    $('.algsetSelect option[value="' + tag + '"]').remove();
-    $('.algsetselect').val($('.algsetselect option:first').val());
-    showAlgsetManager($('.algsetselect'));
-    var i = getAlgSetIndex(tag.split("-")[0], tag.split("-")[1]);
-    algsets.splice(i, 1);
+    if (confirm(langText[txtConfirmDelAlgset])) {
+        var tag = $('.algsetSelect').val();
+        $('tbody.' + tag).remove();
+        $('.algsetSelect option[value="' + tag + '"]').remove();
+        $('.algsetselect').val($('.algsetselect option:first').val());
+        showAlgsetManager($('.algsetselect'));
+        var i = getAlgSetIndex(tag.split("-")[0], tag.split("-")[1]);
+        algsets.splice(i, 1);
+    }
 }
 
 function settingChanged(setting) {
