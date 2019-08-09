@@ -120,7 +120,6 @@ var txtTitle = 7;
 
 function replaceTxtData() {
     var text = arguments[0];
-    console.log(text);
     for (var i = 1; i < arguments.length; i++) {
         text = text.replace("$" + (i - 1), arguments[i]);
     }
@@ -334,7 +333,7 @@ function parseAlgSets(text) {
             }
             if (line.trim() != '') {
                 var alg = cleanAlg(line);
-                if (!evalAlg(alg)) {
+                if (!evalAlg(alg, event)) {
                     success = false;
                     invalidLine = i;
                 } else {
@@ -423,7 +422,7 @@ function trans(alg, n) {
 }
 
 function evalAlg(alg, event) {
-    var validMoves = ["R", "U", "D", "F", "L", "B"];
+    var validMoves = ["R", "U", "D", "F", "L", "B", "x", "y", "z"];
     var validMoves3 = ["r", "u", "d", "f", "l", "b", "M", "E", "S"];
     validMoves = event === "3x3" ? validMoves.concat(validMoves3) : validMoves;
     var moves = alg.split(" ");
@@ -484,7 +483,7 @@ function transYT(alg) {
 }
 
 function cleanAlg(alg) {
-    return alg.replace(/[\[\]]+/g, ' ').replace(/[()]/g, ' ').replace(/\s+/g, ' ').trim();
+    return alg.replace(/[\[\]]+/g, ' ').replace(/[()]/g, ' ').replace(/\s+/g, ' ').replace(/’/g, "'").trim();
 }
 
 function invertAlg(alg) {
