@@ -517,8 +517,9 @@ function popupVisible() {
     return $(".popupback:visible").length > 0;
 }
 
-$(document).keydown(function(e) {
-    if (e.keyCode == 32) {
+function timerPressed(e) {
+    console.log(e.type);
+    if (e.type === "touchstart" || e.keyCode == 32) {
         if (currentAlgSetIndex !== -1 && !popupVisible()) {
             $(".timerdisplay").css('color', '#009dff');
             if (typeof start === 'undefined') {
@@ -533,10 +534,10 @@ $(document).keydown(function(e) {
         }
         return false;
     }
-});
+}
 
-$(document).keyup(function(e) {
-    if (e.keyCode == 32 && currentAlgSetIndex !== -1 && !popupVisible()) {
+function timerUnpressed(e) {
+    if ((e.type === "touchend" || e.keyCode == 32) && currentAlgSetIndex !== -1 && !popupVisible()) {
         $(".timerdisplay").css('color', '#000000');
         if (typeof start !== 'undefined') {
             var end = new Date();
@@ -552,7 +553,11 @@ $(document).keyup(function(e) {
             running = false;
         }
     }
-});
+}
+
+$(document).keydown(function(e) { timerPressed(e) });
+
+$(document).keyup(function(e) { timerUnpressed(e) });
 
 function timer() {
     var now = new Date();

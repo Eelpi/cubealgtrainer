@@ -38,6 +38,8 @@
             $('.timerdisplay').hide();
             $('.timelist').hide();
             $('.setinfo').show();
+            $('.timer')[0].addEventListener("touchstart", timerPressed);
+            $('.timer')[0].addEventListener("touchend", timerUnpressed);
         });
         $(document).ready(adjustContent);
         $(window).resize(adjustContent);
