@@ -1044,6 +1044,7 @@ function deleteAlgset() {
         showAlgsetManager($('.algsetselect'));
         var i = getAlgSetIndex(tag.split("-")[0], tag.split("-")[1]);
         algsets.splice(i, 1);
+        erase("algset-" + tag);
     }
 }
 
