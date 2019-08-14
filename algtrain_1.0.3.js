@@ -681,6 +681,12 @@ function loadTimeList(event, algset) {
     }
 }
 
+function clearTimes() {
+    $(".time").each((i, t) => {
+        removeTime($(t));
+    });
+}
+
 // Trainer code
 var currentEvent;
 var currentAlgSetIndex = -1;

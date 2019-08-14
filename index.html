@@ -44,7 +44,7 @@
         $(document).ready(adjustContent);
         $(window).resize(adjustContent);
     </script>
-    <script src="algtrain_1.0.2.js"></script>
+    <script src="algtrain_1.0.3.js"></script>
 </head>
 
 <body>
@@ -566,6 +566,7 @@ M U (R U R' U') M2' (U R U' r')
         <div class="timelist" style="display: none;">
             <h1><span lang="en">Times</span><span lang="ja">タイム</span></h1>
             <div class="container"></div>
+            <button onclick="clearTimes();"><span lang="en">Clear all</span><span lang="ja">全削除</span></button>
         </div>
     </div>
     <div class="langContainer"><a onclick="switchLang('en')" class="lang en" href="javascript:void(0)">English</a> <a onclick="switchLang('ja')" class="lang ja" href="javascript:void(0)">日本語</a></div>
