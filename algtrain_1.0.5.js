@@ -569,19 +569,25 @@ function timerUnpressed(e) {
 }
 
 function keyPressed(e) {
+    console.log(e.keyCode);
     switch (e.keyCode) {
         // Enter
         case 13:
             nextScramble();
             break;
+            // Delete
+        case 46:
+            removeTime($(".time#" + (timeList.length - 1)));
+            break;
     }
 }
 
-$(document).keydown(function(e) { timerPressed(e) });
+$(document).keydown(function(e) {
+    timerPressed(e);
+    keyPressed(e);
+});
 
 $(document).keyup(function(e) { timerUnpressed(e) });
-
-$(document).keypress(function(e) { keyPressed(e) });
 
 function timer() {
     var now = new Date();
@@ -626,7 +632,6 @@ function calculateAverage(subset, caSe) {
     caSe = parseInt(caSe);
     var caseTag = currentAlgSet().getSubset(subset).cases.length > 1 ? caSe + 1 : "";
     var caseTimelist = timeList.filter(t => t.subset === subset && t.caSe === caSe);
-    console.log(caseTimelist);
     var sum = 0;
     caseTimelist.forEach(function(t, i) {
         sum += parseFloat(t.time);
