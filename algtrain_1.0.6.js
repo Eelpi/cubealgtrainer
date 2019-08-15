@@ -611,9 +611,7 @@ function saveTimeList() {
 }
 
 function addTime(time) {
-    var timeObj = new Time(time, currentSubset, currentCase);
-    timeObj.id = timeList.length;
-    timeList.push(timeObj);
+    timeList.push(new Time(time, currentSubset, currentCase));
     saveTimeList();
     appendTimeElement(timeList.length - 1, time, currentSubset, currentCase);
 }
