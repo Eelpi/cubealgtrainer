@@ -576,12 +576,15 @@ function keyPressed(e) {
             break;
             // Delete
         case 46:
-            const t = timeList[timeList.length - 1];
-            const time = t.time;
-            const subset = t.subset;
-            const caSe = t.caSe;
-            const lastTime = $($("div[data-subset='" + subset + "'][data-case='" + caSe + "'] .time").toArray().reverse().find((t, i) => $(t).text() === time.toString()));
-            removeTime(lastTime);
+            if (timeList.length > 0) {
+                const t = timeList[timeList.length - 1];
+                const time = t.time;
+                const subset = t.subset;
+                const caSe = t.caSe;
+                const lastTime = $($("div[data-subset='" + subset + "'][data-case='" + caSe + "'] .time").toArray().reverse().find((t, i) => $(t).text() === time.toString()));
+                removeTime(lastTime);
+                break;
+            }
             break;
     }
 }
