@@ -568,9 +568,20 @@ function timerUnpressed(e) {
     }
 }
 
+function keyPressed(e) {
+    switch (e.keyCode) {
+        // Enter
+        case 13:
+            nextScramble();
+            break;
+    }
+}
+
 $(document).keydown(function(e) { timerPressed(e) });
 
 $(document).keyup(function(e) { timerUnpressed(e) });
+
+$(document).keypress(function(e) { keyPressed(e) });
 
 function timer() {
     var now = new Date();
@@ -611,32 +622,11 @@ function loadCubeToTooltip(tag) {
     }
 }
 
-function appendTimeElement(id, time, subset, caSe) {
+function calculateAverage(subset, caSe) {
+    caSe = parseInt(caSe);
     var caseTag = currentAlgSet().getSubset(subset).cases.length > 1 ? caSe + 1 : "";
-    var subsetAndCase = subset + caSe;
-    var timeContainer = $(".timelist .container > div#" + subsetAndCase);
-    // Create header if not present
-    if (timeContainer.length == 0) {
-        var algs = $(".manageralgs." + currentEvent + "-" + currentAlgSet().name + "-" + subset + caSe).html();
-        $(".timelist .container").append("<div class='timecontainer' id='" + subsetAndCase +
-            "'><div class='ttcontainer'><div class='tooltip'><h2>" + subset + caseTag + "</h2><span class='ttcase' id='tt-" + subset + caSe + "'><table><tbody><tr><td class='ttcube'></td><td>" + algs + "</td></tbody></table></span></div></div></div>");
-
-        loadCubeToTooltip(subsetAndCase);
-    }
-    $(".timelist .container > .timecontainer#" + subsetAndCase).append("<a class='time' id='" +
-        id + "' onclick='removeTime($(this));' href='javascript:void(0);'>" + time + "</a>");
-    $(".timelist .container").append($(".timecontainer").sort(function(a, b) {
-        if (a.id > b.id) {
-            return 1;
-        } else if (a.id < b.id) {
-            return -1;
-        } else {
-            return 0;
-        }
-    }));
-
-    // Calculate average
     var caseTimelist = timeList.filter(t => t.subset === subset && t.caSe === caSe);
+    console.log(caseTimelist);
     var sum = 0;
     caseTimelist.forEach(function(t, i) {
         sum += parseFloat(t.time);
@@ -655,10 +645,42 @@ function appendTimeElement(id, time, subset, caSe) {
     }
 }
 
+function appendTimeElement(id, time, subset, caSe) {
+    var caseTag = currentAlgSet().getSubset(subset).cases.length > 1 ? caSe + 1 : "";
+    var subsetAndCase = subset + caSe;
+    var timeContainer = $(".timelist .container > div#" + subsetAndCase);
+    // Create header if not present
+    if (timeContainer.length == 0) {
+        var algs = $(".manageralgs." + currentEvent + "-" + currentAlgSet().name + "-" + subset + caSe).html();
+        $(".timelist .container").append("<div data-subset='" + subset + "' data-case='" + caSe + "' class='timecontainer' id='" + subsetAndCase +
+            "'><div class='ttcontainer'><div class='tooltip'><h2>" + subset + caseTag + "</h2><span class='ttcase' id='tt-" + subset + caSe + "'><table><tbody><tr><td class='ttcube'></td><td>" + algs + "</td></tbody></table></span></div></div></div>");
+
+        loadCubeToTooltip(subsetAndCase);
+    }
+    $(".timelist .container > .timecontainer#" + subsetAndCase).append("<a class='time' id='" +
+        id + "' onclick='removeTime($(this));' href='javascript:void(0);'>" + time + "</a>");
+    $(".timelist .container").append($(".timecontainer").sort(function(a, b) {
+        if (a.id > b.id) {
+            return 1;
+        } else if (a.id < b.id) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }));
+
+    calculateAverage(subset, caSe);
+}
+
 function removeTime(e) {
-    timeList.splice(parseInt(e.attr('id')), 1);
+    const parent = e.parent();
+    const subset = parent.attr('data-subset');
+    const caSe = parent.attr('data-case');
+    const i = timeList.findIndex((t, i) => {
+        return t.subset === subset && t.caSe === parseInt(caSe) && t.time === e.text();
+    });
+    timeList.splice(i, 1);
     saveTimeList();
-    var parent = e.parent();
     e.remove();
     if (parent.children().length == 1) {
         parent.remove();
@@ -666,7 +688,11 @@ function removeTime(e) {
     if (smartTraining) {
         nextScramble();
     }
+
+    calculateAverage(subset, caSe);
 }
+
+
 
 function loadTimeList(event, algset) {
     clearTimeListElement();
@@ -685,6 +711,7 @@ function clearTimes() {
     $(".time").each((i, t) => {
         removeTime($(t));
     });
+
 }
 
 // Trainer code
