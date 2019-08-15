@@ -569,7 +569,6 @@ function timerUnpressed(e) {
 }
 
 function keyPressed(e) {
-    console.log(e.keyCode);
     switch (e.keyCode) {
         // Enter
         case 13:
@@ -577,7 +576,12 @@ function keyPressed(e) {
             break;
             // Delete
         case 46:
-            removeTime($(".time#" + (timeList.length - 1)));
+            const t = timeList[timeList.length - 1];
+            const time = t.time;
+            const subset = t.subset;
+            const caSe = t.caSe;
+            const lastTime = $($("div[data-subset='" + subset + "'][data-case='" + caSe + "'] .time").toArray().reverse().find((t, i) => $(t).text() === time.toString()));
+            removeTime(lastTime);
             break;
     }
 }
@@ -604,7 +608,9 @@ function saveTimeList() {
 }
 
 function addTime(time) {
-    timeList.push(new Time(time, currentSubset, currentCase));
+    var timeObj = new Time(time, currentSubset, currentCase);
+    timeObj.id = timeList.length;
+    timeList.push(timeObj);
     saveTimeList();
     appendTimeElement(timeList.length - 1, time, currentSubset, currentCase);
 }
